@@ -1,0 +1,23 @@
+# Agent framework (ADK 2.x). The [db] extra provides DatabaseSessionService;
+# [otel-gcp] wires OpenTelemetry traces to Cloud Trace for the observability story.
+google-adk[db,otel-gcp]>=2.7.1
+
+# Gemini access. google-genai talks to either the Gemini API or Vertex AI
+# depending on GOOGLE_GENAI_USE_VERTEXAI.
+google-genai>=2.19.0
+
+# Google Cloud infrastructure
+google-cloud-firestore>=2.19.0
+google-cloud-storage>=2.18.0
+google-cloud-pubsub>=2.23.0
+
+# Service layer (Cloud Run)
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+
+# HTTP + config + resilience
+httpx>=0.28.0
+pydantic>=2.9.0
+pydantic-settings>=2.5.0
+tenacity>=9.0.0
+python-dateutil>=2.9.0

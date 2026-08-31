@@ -1,0 +1,167 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 1060" width="1160" height="1060" font-family="Inter, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5f6368"/>
+    </marker>
+    <marker id="arrowRed" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#d93025"/>
+    </marker>
+  </defs>
+
+  <!-- explicit background so the diagram stays legible in GitHub dark mode -->
+  <rect x="0" y="0" width="1160" height="1060" fill="#ffffff"/>
+
+  <!-- ============ title ============ -->
+  <text x="40" y="50" font-size="27" font-weight="700" fill="#202124">Agenda Item 7 - architecture</text>
+  <text x="40" y="78" font-size="14" fill="#5f6368">A background agent that reads public regulatory dockets. Nobody talks to it; a scheduler wakes it.</text>
+  <line x1="40" y1="96" x2="1120" y2="96" stroke="#dadce0" stroke-width="1"/>
+
+  <!-- ============ column captions ============ -->
+  <text x="180" y="220" font-size="11" font-weight="700" fill="#80868b" letter-spacing="1.2" text-anchor="middle">PUBLIC SOURCES &amp; MODELS</text>
+  <text x="550" y="112" font-size="11" font-weight="700" fill="#80868b" letter-spacing="1.2" text-anchor="middle">EXECUTION</text>
+  <text x="950" y="220" font-size="11" font-weight="700" fill="#80868b" letter-spacing="1.2" text-anchor="middle">STATE</text>
+
+  <!-- ============ SPINE: Cloud Scheduler ============ -->
+  <rect x="380" y="120" width="340" height="70" rx="10" fill="#fef7e0" stroke="#f9ab00" stroke-width="2"/>
+  <text x="550" y="150" font-size="16" font-weight="600" fill="#202124" text-anchor="middle">Cloud Scheduler</text>
+  <text x="550" y="172" font-size="12" fill="#5f6368" text-anchor="middle">daily cron - the reason this is autonomous</text>
+
+  <path d="M 550 190 L 550 234" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ============ SPINE: Poller ============ -->
+  <rect x="380" y="240" width="340" height="96" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="550" y="270" font-size="16" font-weight="600" fill="#202124" text-anchor="middle">Cloud Run - POST /tasks/poll</text>
+  <text x="550" y="292" font-size="12" fill="#5f6368" text-anchor="middle">discovers new documents, publishes one message each</text>
+  <text x="550" y="312" font-size="12" fill="#5f6368" text-anchor="middle">does no model work - returns fast</text>
+
+  <!-- Regulations.gov -->
+  <rect x="40" y="240" width="280" height="96" rx="10" fill="#f1f3f4" stroke="#9aa0a6" stroke-width="2"/>
+  <text x="180" y="272" font-size="15" font-weight="600" fill="#202124" text-anchor="middle">Regulations.gov API v4</text>
+  <text x="180" y="294" font-size="12" fill="#5f6368" text-anchor="middle">~2M public documents</text>
+  <text x="180" y="313" font-size="12" fill="#5f6368" text-anchor="middle">agency + date + documentType</text>
+  <path d="M 320 288 L 374 288" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <path d="M 550 336 L 550 380" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="562" y="364" font-size="11" fill="#5f6368">one message per document</text>
+
+  <!-- ============ SPINE: Pub/Sub ============ -->
+  <rect x="380" y="386" width="340" height="70" rx="10" fill="#e6f4ea" stroke="#188038" stroke-width="2"/>
+  <text x="550" y="416" font-size="16" font-weight="600" fill="#202124" text-anchor="middle">Pub/Sub - agenda7-documents</text>
+  <text x="550" y="438" font-size="12" fill="#5f6368" text-anchor="middle">decouples discovery from analysis</text>
+
+  <!-- DLQ -->
+  <rect x="40" y="386" width="280" height="70" rx="10" fill="#fce8e6" stroke="#d93025" stroke-width="2"/>
+  <text x="180" y="416" font-size="15" font-weight="600" fill="#202124" text-anchor="middle">dead-letter topic</text>
+  <text x="180" y="438" font-size="12" fill="#5f6368" text-anchor="middle">a poison document parks here</text>
+  <path d="M 374 421 L 326 421" stroke="#d93025" stroke-width="2" marker-end="url(#arrowRed)"/>
+  <text x="350" y="410" font-size="11" fill="#d93025" text-anchor="middle">5 fails</text>
+
+  <path d="M 550 456 L 550 500" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)"/>
+  <text x="562" y="484" font-size="11" fill="#5f6368">push, OIDC authenticated</text>
+
+  <!-- ============ SPINE: Worker ============ -->
+  <rect x="380" y="506" width="340" height="250" rx="10" fill="#e8f0fe" stroke="#1a73e8" stroke-width="2"/>
+  <text x="550" y="534" font-size="16" font-weight="600" fill="#202124" text-anchor="middle">Cloud Run - POST /tasks/document</text>
+  <text x="550" y="552" font-size="11" fill="#5f6368" text-anchor="middle">one document per request - the unit of retry</text>
+
+  <rect x="400" y="564" width="300" height="52" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="416" y="586" font-size="14" font-weight="600" fill="#202124">1 · Triage</text>
+  <text x="416" y="605" font-size="11" fill="#5f6368">Gemini 3.5 Flash Lite · metadata only · most stop here</text>
+
+  <rect x="400" y="626" width="300" height="52" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="416" y="648" font-size="14" font-weight="600" fill="#202124">2 · Analyst</text>
+  <text x="416" y="667" font-size="11" fill="#5f6368">Gemini 3.7 Flash · reads the PDF vs prior understanding</text>
+
+  <rect x="400" y="688" width="300" height="52" rx="8" fill="#ffffff" stroke="#1a73e8" stroke-width="1.5"/>
+  <text x="416" y="710" font-size="14" font-weight="600" fill="#202124">3 · Drafter</text>
+  <text x="416" y="729" font-size="11" fill="#5f6368">Gemini 3.7 Flash · only if a comment can still be filed</text>
+
+  <!-- Vertex AI -->
+  <rect x="40" y="506" width="280" height="250" rx="10" fill="#f3e8fd" stroke="#9334e6" stroke-width="2"/>
+  <text x="180" y="538" font-size="15" font-weight="600" fill="#202124" text-anchor="middle">Vertex AI</text>
+  <text x="180" y="560" font-size="12" fill="#5f6368" text-anchor="middle">location = global</text>
+  <text x="180" y="580" font-size="11" fill="#80868b" text-anchor="middle">Gemini 3.x 404s from every region</text>
+  <line x1="70" y1="600" x2="290" y2="600" stroke="#d7bbf5" stroke-width="1"/>
+  <text x="180" y="626" font-size="12" fill="#5f6368" text-anchor="middle">Two tiers on purpose:</text>
+  <text x="180" y="648" font-size="12" fill="#5f6368" text-anchor="middle">a cheap gate discards most</text>
+  <text x="180" y="668" font-size="12" fill="#5f6368" text-anchor="middle">documents before the</text>
+  <text x="180" y="688" font-size="12" fill="#5f6368" text-anchor="middle">expensive read is paid for.</text>
+  <text x="180" y="720" font-size="11" fill="#80868b" text-anchor="middle">Built with Google ADK 2.7</text>
+  <text x="180" y="738" font-size="11" fill="#80868b" text-anchor="middle">structured output, no free-text parsing</text>
+  <path d="M 374 631 L 326 631" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+
+  <!-- ============ STATE: Firestore ============ -->
+  <rect x="780" y="240" width="340" height="380" rx="10" fill="#e8eaed" stroke="#5f6368" stroke-width="2"/>
+  <text x="950" y="272" font-size="16" font-weight="600" fill="#202124" text-anchor="middle">Firestore</text>
+
+  <rect x="800" y="288" width="300" height="40" rx="6" fill="#ffffff" stroke="#bdc1c6" stroke-width="1"/>
+  <text x="814" y="313" font-size="12" fill="#3c4043">watches · what I care about, and why</text>
+
+  <rect x="800" y="336" width="300" height="40" rx="6" fill="#ffffff" stroke="#bdc1c6" stroke-width="1"/>
+  <text x="814" y="361" font-size="12" fill="#3c4043">checkpoints · high-water mark, no rescans</text>
+
+  <rect x="800" y="384" width="300" height="40" rx="6" fill="#ffffff" stroke="#bdc1c6" stroke-width="1"/>
+  <text x="814" y="409" font-size="12" fill="#3c4043">documents · stage + triage rationale</text>
+
+  <rect x="800" y="432" width="300" height="60" rx="6" fill="#fef7e0" stroke="#f9ab00" stroke-width="2"/>
+  <text x="814" y="455" font-size="12" font-weight="700" fill="#3c4043">dockets · the tracker that MUTATES</text>
+  <text x="814" y="474" font-size="11" fill="#5f6368">each filing folds in; revision increments</text>
+
+  <rect x="800" y="500" width="300" height="40" rx="6" fill="#ffffff" stroke="#bdc1c6" stroke-width="1"/>
+  <text x="814" y="525" font-size="12" fill="#3c4043">drafts · staged for review, never filed</text>
+
+  <rect x="800" y="548" width="300" height="40" rx="6" fill="#ffffff" stroke="#bdc1c6" stroke-width="1"/>
+  <text x="814" y="573" font-size="12" fill="#3c4043">runs · audit trail per execution</text>
+
+  <path d="M 726 288 L 774 288" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+  <path d="M 726 560 L 774 560" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+
+  <!-- ============ STATE: Cloud Storage ============ -->
+  <rect x="780" y="650" width="340" height="106" rx="10" fill="#e8eaed" stroke="#5f6368" stroke-width="2"/>
+  <text x="950" y="682" font-size="16" font-weight="600" fill="#202124" text-anchor="middle">Cloud Storage</text>
+  <text x="950" y="704" font-size="12" fill="#5f6368" text-anchor="middle">source PDFs staged as gs:// URIs</text>
+  <text x="950" y="726" font-size="11" fill="#80868b" text-anchor="middle">no request-size ceiling, and the exact</text>
+  <text x="950" y="743" font-size="11" fill="#80868b" text-anchor="middle">bytes analyzed are retained</text>
+  <path d="M 726 700 L 774 700" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)" marker-start="url(#arrow)"/>
+
+  <path d="M 550 756 L 550 800" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ============ SPINE: Actions ============ -->
+  <rect x="380" y="806" width="340" height="110" rx="10" fill="#e6f4ea" stroke="#188038" stroke-width="2"/>
+  <text x="550" y="834" font-size="16" font-weight="600" fill="#202124" text-anchor="middle">Actions</text>
+
+  <rect x="396" y="846" width="100" height="54" rx="8" fill="#ffffff" stroke="#188038" stroke-width="1.5"/>
+  <text x="446" y="868" font-size="12" font-weight="600" fill="#202124" text-anchor="middle">.ics</text>
+  <text x="446" y="886" font-size="10" fill="#5f6368" text-anchor="middle">deadlines +</text>
+  <text x="446" y="897" font-size="10" fill="#5f6368" text-anchor="middle">reminders</text>
+
+  <rect x="500" y="846" width="100" height="54" rx="8" fill="#ffffff" stroke="#188038" stroke-width="1.5"/>
+  <text x="550" y="868" font-size="12" font-weight="600" fill="#202124" text-anchor="middle">digest</text>
+  <text x="550" y="886" font-size="10" fill="#5f6368" text-anchor="middle">what changed,</text>
+  <text x="550" y="897" font-size="10" fill="#5f6368" text-anchor="middle">what was cut</text>
+
+  <rect x="604" y="846" width="100" height="54" rx="8" fill="#ffffff" stroke="#188038" stroke-width="1.5"/>
+  <text x="654" y="868" font-size="12" font-weight="600" fill="#202124" text-anchor="middle">draft</text>
+  <text x="654" y="886" font-size="10" fill="#5f6368" text-anchor="middle">comment,</text>
+  <text x="654" y="897" font-size="10" fill="#5f6368" text-anchor="middle">staged</text>
+
+  <path d="M 550 916 L 550 950" stroke="#5f6368" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- ============ human boundary ============ -->
+  <rect x="380" y="956" width="340" height="64" rx="10" fill="#ffffff" stroke="#202124" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="550" y="982" font-size="15" font-weight="600" fill="#202124" text-anchor="middle">Human reviews and files</text>
+  <text x="550" y="1004" font-size="12" fill="#5f6368" text-anchor="middle">the agent has no submission path - by design</text>
+
+  <!-- ============ side note ============ -->
+  <text x="40" y="800" font-size="11" font-weight="700" fill="#80868b" letter-spacing="1.2">WHY THE SPLIT</text>
+  <text x="40" y="826" font-size="12" fill="#5f6368">Discovery and analysis are separate requests, so a</text>
+  <text x="40" y="845" font-size="12" fill="#5f6368">slow filing cannot stall discovery and one bad</text>
+  <text x="40" y="864" font-size="12" fill="#5f6368">document retries alone instead of failing the run.</text>
+  <text x="40" y="896" font-size="12" fill="#5f6368">Only "analyzed" and "rejected" are terminal -</text>
+  <text x="40" y="915" font-size="12" fill="#5f6368">a document stuck mid-pipeline is retried, not</text>
+  <text x="40" y="934" font-size="12" fill="#5f6368">buried by existence-based dedup.</text>
+
+  <text x="40" y="984" font-size="11" fill="#9aa0a6">Sources are normalized behind one adapter interface:</text>
+  <text x="40" y="1001" font-size="11" fill="#9aa0a6">adding FCC ECFS or a municipal portal is a new module</text>
+  <text x="40" y="1018" font-size="11" fill="#9aa0a6">in sources/ and no changes anywhere downstream.</text>
+</svg>

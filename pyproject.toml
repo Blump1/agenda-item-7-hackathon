@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agenda-item-7"
+version = "0.1.0"
+description = "A background agent that reads public regulatory dockets and tracks comment deadlines"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+# Runtime dependencies are pinned in requirements.txt, which is what both the
+# local venv and the Cloud Run buildpack install. Keeping them in one place
+# avoids the two lists drifting.
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
