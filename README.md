@@ -1,5 +1,10 @@
 # Agenda Item 7
 
+--NOTE: This is a copy of the original repository that I built to wipe some of my
+commit history. Previous commits included some personal information, which is why
+I copied over the project to this new repository. I have given collaborator access
+to the 2 required emails for my original repository. --
+
 A background agent that reads public regulatory dockets and government meeting
 packets so a human does not have to, and makes sure the comment deadline is never
 the thing that gets missed.
